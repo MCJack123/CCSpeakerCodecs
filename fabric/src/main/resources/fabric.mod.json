@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "ccspeakercodecs",
+  "version": "${version}",
+  "name": "CCSpeakerCodecs",
+  "description": "",
+  "authors": [
+    ""
+  ],
+  "contact": {
+    "homepage": ""
+  },
+  "license": "MPL-2.0",
+  "icon": "assets/ccspeakercodecs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "cc.craftospc.ccspeakercodecs.fabric.CCSpeakerCodecsFabric"
+    ],
+    "client": [
+      "cc.craftospc.ccspeakercodecs.fabric.client.CCSpeakerCodecsFabricClient"
+    ]
+  },
+  "mixins": [
+    "ccspeakercodecs.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "architectury": ">=9.2.14",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

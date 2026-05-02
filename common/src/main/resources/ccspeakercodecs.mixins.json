@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "cc.craftospc.ccspeakercodecs.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "DfpwmStreamMixin"
+  ],
+  "mixins": [
+    "DfpwmStateMixin",
+    "EncodedAudioMixin",
+    "SpeakerPeripheralAccessor",
+    "SpeakerPeripheralMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,27 @@
+# CCSpeakerCodecs
+Adds a collection of alternative transit codecs for CC: Tweaked speakers.
+
+## Theory
+CC: Tweaked speakers internally use the 1 bit per sample DFPWM codec in transit to reduce bandwidth while keeping a high audio sample rate. It works fairly well for audio mostly below ~2000 Hz with little high frequency components, but it starts to break down when the high-frequency components are important - for example, in a waveform with sharp edges (which create harmonics), such as square/sawtooth waves.
+
+Since DFPWM has a pretty hard frequency shelf at 12 kHz, I figured that reducing the sample rate wouldn't have as much of an impact and would leave room to use a better codec like ADPCM. So that's what this mod does - it lets the user switch to higher bit depth codecs at the expense of sample rate.
+
+All codecs are limited to up to the same 48 kbps rate as DFPWM, with the rate scaled down to fit. The speaker still takes in the same 48 kHz sample rate, but samples are skipped to hit the sample rate target - high-performance applications can ignore the skipped samples and set them to 0.
+
+Over the network, the audio packets are made backwards compatible with clients and servers without this mod installed. Extended codec packets are encoded as empty DFPWM packets followed by the actual data, which makes unaware clients decode an empty packet when an unsupported codec is used. DFPWM codec packets remain the same format, so unaware clients still receive a valid packet & unaware servers are still sending a supported packet.
+
+## Codecs
+| Codec    | b/sample | Sample rate |
+|----------|----------|-------------|
+| `dfpwm`  | 1        | 48000       |
+| `adpcm2` | 2        | 24000       |
+| `adpcm3` | 3        | 16000       |
+| `qoa`    | 3.2      | 12000       |
+| `adpcm`  | 4        | 12000       |
+| `adpcm5` | 5        | 9600        |
+
+## Usage
+Simply call the new `speaker.setAudioCodec(codec)` method to set the codec. Future `playAudio` calls will use this codec automatically, with no format changes necessary.
+
+## License
+The core mod is licensed under MPL 2.0, like CC:T. Portions are taken from third-party projects licensed under other terms - see LICENSE.txt for more info.
