@@ -1,5 +1,5 @@
 # CCSpeakerCodecs
-Adds a collection of alternative transit codecs for CC: Tweaked speakers.
+Adds a collection of alternative transit codecs for CC: Tweaked speakers to enhance audio quality.
 
 ## Theory
 CC: Tweaked speakers internally use the 1 bit per sample DFPWM codec in transit to reduce bandwidth while keeping a high audio sample rate. It works fairly well for audio mostly below ~2000 Hz with little high frequency components, but it starts to break down when the high-frequency components are important - for example, in a waveform with sharp edges (which create harmonics), such as square/sawtooth waves.

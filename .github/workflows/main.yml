@@ -1,0 +1,45 @@
+# shamelessly stolen from CC:T
+
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clone repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 25
+          distribution: 'temurin'
+
+      - name: 📥 Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/master') }}
+
+      - name: Disable Gradle daemon
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+
+      - name: ⚒️ Build
+        run: ./gradlew assemble || ./gradlew assemble
+
+      - name: 📦 Prepare Jars
+        run: |
+          # Find the main jar and append the git hash onto it.
+          mkdir -p jars
+          find forge/build/libs fabric/build/libs -type f -regex '.*[0-9.]+\(-SNAPSHOT\)?\.jar$' -exec bash -c 'cp {} "jars/$(basename {} .jar)-$(git rev-parse HEAD).jar"' \;
+
+      - name: 📤 Upload Jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: CCSpeakerCodecs
+          path: ./jars
