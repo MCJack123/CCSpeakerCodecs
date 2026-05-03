@@ -11,7 +11,7 @@ public class DFPWMCodec extends Codec {
     }
 
     @Override
-    public short[] decode(byte[] data) {
+    public short[] decode(byte[] data, int numSamples) {
         throw new UnsupportedOperationException();
     }
 

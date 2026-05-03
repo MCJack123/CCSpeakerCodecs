@@ -31,10 +31,11 @@ public class QOACodec extends Codec {
             return true;
         }
 
-        public byte[] finish() {
-            byte[] retval = new byte[output.position()];
+        public byte[] finish(short lastSample) {
+            byte[] retval = new byte[output.position()+1];
             output.flip();
-            output.get(retval);
+            output.get(retval, 0, retval.length - 1);
+            retval[retval.length-1] = (byte) (lastSample >> 8);
             return retval;
         }
     }
@@ -67,13 +68,13 @@ public class QOACodec extends Codec {
         Encoder encoder = new Encoder();
         encoder.writeHeader(resampled.length, 1, SAMPLE_RATE);
         for (int i = 0; i < resampled.length; i += 5120) encoder.writeFrame(Arrays.copyOfRange(resampled, i, Math.min(i + 5120, resampled.length)), Math.min(resampled.length - i, 5120));
-        return encoder.finish();
+        return encoder.finish(data[data.length - 1]);
     }
 
     @Override
-    public short[] decode(byte[] data) {
+    public short[] decode(byte[] data, int numSamples) throws RuntimeException {
         Decoder decoder = new Decoder(data);
-        if (!decoder.readHeader()) throw new AssertionError("Invalid header data");
+        if (!decoder.readHeader()) throw new IllegalStateException("Invalid header data");
         int sz = decoder.getTotalSamples();
         short[] retval = new short[sz * SKIP_FACTOR];
         short[] tmp = new short[5120];
@@ -82,8 +83,8 @@ public class QOACodec extends Codec {
             if (framesz < 0) break;
             System.arraycopy(tmp, 0, retval, i, framesz);
         }
-        for (int j = 0; j < SKIP_FACTOR; j++) retval[(sz-1)*SKIP_FACTOR+j] = retval[(sz-1)];
-        for (int i = sz - 2; i >= 0; i--) {
+        retval[sz] = (short) (data[data.length - 1] << 8);
+        for (int i = sz - 1; i >= 0; i--) {
             for (int j = 0; j < SKIP_FACTOR; j++) retval[i*SKIP_FACTOR+j] = (short) (retval[i] * (SKIP_FACTOR - j) / SKIP_FACTOR + retval[i+1] * j / SKIP_FACTOR);
         }
         return Arrays.copyOf(retval, sz * SKIP_FACTOR);

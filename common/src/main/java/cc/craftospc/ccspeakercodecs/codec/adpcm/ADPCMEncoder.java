@@ -654,6 +654,7 @@ public class ADPCMEncoder {
     private int encode_chunks (byte[] outbuf, int outbuf_offset, short[] inbuf, int inbuf_offset, int inbufcount, int bps) {
         int offset = inbuf_offset;
         int ch;
+        int totalSize = 0;
 
         for (ch = 0; ch < this.num_channels; ++ch) {
             int shiftbits = 0, numbits = 0, i, j;
@@ -678,11 +679,15 @@ public class ADPCMEncoder {
                 }
             }
 
-            if (numbits != 0)
-                outbuf [outbuf_offset + (j & ~3) * this.num_channels + (ch * 4) + (j & 3)] = (byte) (shiftbits & 0xFF);
+            if (numbits != 0) {
+                outbuf[outbuf_offset + (j & ~3) * this.num_channels + (ch * 4) + (j & 3)] = (byte) (shiftbits & 0xFF);
+                totalSize = Math.max(totalSize, (j & ~3) * this.num_channels + (ch * 4) + (j & 3));
+            } else {
+                totalSize = Math.max(totalSize, ((j - 1) & ~3) * this.num_channels + (ch * 4) + ((j - 1) & 3));
+            }
         }
 
-        return (inbufcount * bps + 31) / 32 * this.num_channels * 4;
+        return totalSize + 1;
     }
 
     /** Encode a block of 16-bit PCM data into N-bit ADPCM.
@@ -768,7 +773,7 @@ public class ADPCMEncoder {
 
         for (ch = 0; ch < this.num_channels; ch++) {
             outbuf[outbuf_offset+0] = (byte)(this.channels[ch].pcmdata & 0xFF);
-            outbuf[outbuf_offset+1] = (byte)(this.channels[ch].pcmdata >>> 8);
+            outbuf[outbuf_offset+1] = (byte)(this.channels[ch].pcmdata >> 8);
             outbuf[outbuf_offset+2] = this.channels[ch].index;
             outbuf[outbuf_offset+3] = 0;
 

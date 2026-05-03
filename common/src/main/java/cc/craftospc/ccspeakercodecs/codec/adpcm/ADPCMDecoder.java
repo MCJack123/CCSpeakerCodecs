@@ -60,7 +60,7 @@ public class ADPCMDecoder {
             return 0;
 
         for (ch = 0; ch < channels; ch++) {
-            outbuf[outbuf_offset++] = (short) (pcmdata[ch] = (inbuf [inbuf_offset+0] | (inbuf [inbuf_offset+1] << 8)));
+            outbuf[outbuf_offset++] = (short) (pcmdata[ch] = ((inbuf [inbuf_offset+0] & 0xFF) | (inbuf [inbuf_offset+1] << 8)));
             index[ch] = inbuf [inbuf_offset+2];
 
             if (index [ch] < 0 || index [ch] > 88 || inbuf [inbuf_offset+3] != 0)     // sanitize the input a little...
@@ -79,7 +79,8 @@ public class ADPCMDecoder {
             for (ch = 0; ch < channels; ++ch) {
 
                 for (i = 0; i < 4; ++i) {
-                    short step = step_table [index [ch]], delta = (short) (step >>> 3);
+                    short step = step_table [index [ch]];
+                    int delta = (short) (step >>> 3);
 
                     if ((inbuf[inbuf_offset] & 1) != 0) delta += (step >>> 2);
                     if ((inbuf[inbuf_offset] & 2) != 0) delta += (step >>> 1);
@@ -149,7 +150,7 @@ public class ADPCMDecoder {
             return 0;
 
         for (ch = 0; ch < channels; ch++) {
-            outbuf[outbuf_offset++] = (short) (pcmdata[ch] = (inbuf [inbuf_offset+0] | (inbuf [inbuf_offset+1] << 8)));
+            outbuf[outbuf_offset++] = (short) (pcmdata[ch] = (((int) inbuf [inbuf_offset+0] & 0xFF) | ((int) inbuf [inbuf_offset+1] << 8)));
             index[ch] = inbuf [inbuf_offset+2];
 
             if (index [ch] < 0 || index [ch] > 88 || inbuf [inbuf_offset+3] != 0)     // sanitize the input a little...
@@ -159,7 +160,7 @@ public class ADPCMDecoder {
             inbuf_offset += 4;
         }
 
-        if (inbufsize == 0 || (inbufsize % (channels * 4)) != 0)             // extra clean
+        if (inbufsize == 0 /*|| (inbufsize % (channels * 4)) != 0*/)             // extra clean
             return samples;
 
         samples += inbufsize / channels * 8 / bps;
@@ -173,7 +174,7 @@ public class ADPCMDecoder {
                         short step = step_table [index [ch]];
 
                         if (numbits < bps) {
-                            shiftbits |= inbuf [inbuf_offset + (j & ~3) * channels + (ch * 4) + (j & 3)] << numbits;
+                            shiftbits |= ((int) inbuf [inbuf_offset + (j & ~3) * channels + (ch * 4) + (j & 3)] & 0xFF) << numbits;
                             numbits += 8;
                             j++;
                         }
@@ -200,10 +201,11 @@ public class ADPCMDecoder {
                     int shiftbits = 0, numbits = 0, i, j;
 
                     for (j = i = 0; i < samples - 1; ++i) {
-                        short step = step_table [index [ch]], delta = (short) (step >>> 2);
+                        short step = step_table [index [ch]];
+                        int delta = (short) (step >>> 2);
 
                         if (numbits < bps) {
-                            shiftbits |= inbuf [inbuf_offset + (j & ~3) * channels + (ch * 4) + (j & 3)] << numbits;
+                            shiftbits |= ((int) inbuf [inbuf_offset + (j & ~3) * channels + (ch * 4) + (j & 3)] & 0xFF) << numbits;
                             numbits += 8;
                             j++;
                         }
@@ -233,10 +235,11 @@ public class ADPCMDecoder {
                     int shiftbits = 0, numbits = 0, i, j;
 
                     for (j = i = 0; i < samples - 1; ++i) {
-                        short step = step_table [index [ch]], delta = (short) (step >>> 4);
+                        short step = step_table [index [ch]];
+                        int delta = (short) (step >>> 4);
 
                         if (numbits < bps) {
-                            shiftbits |= inbuf [inbuf_offset + (j & ~3) * channels + (ch * 4) + (j & 3)] << numbits;
+                            shiftbits |= ((int) inbuf [inbuf_offset + (j & ~3) * channels + (ch * 4) + (j & 3)] & 0xFF) << numbits;
                             numbits += 8;
                             j++;
                         }

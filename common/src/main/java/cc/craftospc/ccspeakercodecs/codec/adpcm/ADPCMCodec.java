@@ -27,17 +27,19 @@ public class ADPCMCodec extends Codec {
     public byte[] encode(short[] data) {
         short[] resampled = new short[data.length / this.skipFactor];
         for (int i = 0; i < resampled.length; i++) resampled[i] = data[i * this.skipFactor];
-        byte[] retval = new byte[resampled.length * this.bps / 8 + 8];
+        byte[] retval = new byte[resampled.length * this.bps / 8 + 9];
         int sz = encoder.encode_block_ex(retval, resampled, this.bps);
-        return Arrays.copyOf(retval, sz);
+        retval[sz] = (byte) (data[data.length - 1] >> 8);
+        return Arrays.copyOf(retval, sz + 1);
     }
 
     @Override
-    public short[] decode(byte[] data) {
-        short[] retval = new short[(data.length * 8 / this.bps + 1) * this.skipFactor];
+    public short[] decode(byte[] data, int numSamples) {
+        short[] retval = new short[numSamples];
         int sz = ADPCMDecoder.decode_block_ex(retval, data, 1, this.bps);
-        for (int j = 0; j < this.skipFactor; j++) retval[(sz-1)*this.skipFactor+j] = retval[(sz-1)];
-        for (int i = sz - 2; i >= 0; i--) {
+        sz = Math.min(sz, numSamples / this.skipFactor);
+        retval[sz] = (short) (data[data.length - 1] << 8);
+        for (int i = sz - 1; i >= 0; i--) {
             for (int j = 0; j < this.skipFactor; j++) retval[i*this.skipFactor+j] = (short) (retval[i] * (this.skipFactor - j) / this.skipFactor + retval[i+1] * j / this.skipFactor);
         }
         return Arrays.copyOf(retval, sz * this.skipFactor);

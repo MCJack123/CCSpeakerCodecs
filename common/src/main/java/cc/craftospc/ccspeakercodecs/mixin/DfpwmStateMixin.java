@@ -61,7 +61,7 @@ abstract class DfpwmStateMixin implements DfpwmStateBridge {
         }
         byte[] bytes = codec_ccspeakercodecs.encode(samples);
 
-        ccspeakercodecs$set_pendingAudio(new EncodedAudio(0x8000 | codec_ccspeakercodecs.id(), 0, false, ByteBuffer.wrap(bytes)));
+        ccspeakercodecs$set_pendingAudio(new EncodedAudio(0x8000 | codec_ccspeakercodecs.id(), size, false, ByteBuffer.wrap(bytes)));
         ccspeakercodecs$set_pendingVolume((float) SpeakerPeripheralAccessor.callClampVolume(volume.orElse((double) ccspeakercodecs$get_pendingVolume())));
         cir.setReturnValue(true);
         cir.cancel();

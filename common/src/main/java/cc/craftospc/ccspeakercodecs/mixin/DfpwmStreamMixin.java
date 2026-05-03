@@ -33,15 +33,26 @@ public abstract class DfpwmStreamMixin {
             return;
         }
         var input = audio.audio();
+        if (!input.hasRemaining()) {
+            CCSpeakerCodecs.LOG.warning("Received empty audio. Skipping audio chunk.");
+            ci.cancel();
+            return;
+        }
         byte[] bytes = new byte[input.remaining()];
         input.get(bytes);
-        short[] samples = codec.decode(bytes);
-        ByteBuffer samples8 = ByteBuffer.allocate(samples.length).order(ByteOrder.nativeOrder());
-        for (short sample : samples) samples8.put((byte) ((sample >> 8) ^ 0x80));
-        samples8.flip();
-        synchronized (this) {
-            ccspeakercodecs$getBuffers().add(samples8);
+        try {
+            short[] samples = codec.decode(bytes, audio.strength());
+            ByteBuffer samples8 = ByteBuffer.allocate(samples.length).order(ByteOrder.nativeOrder());
+            for (short sample : samples) samples8.put((byte) ((sample >> 8) ^ 0x80));
+            samples8.flip();
+            synchronized (this) {
+                ccspeakercodecs$getBuffers().add(samples8);
+            }
+        } catch (RuntimeException e) {
+            CCSpeakerCodecs.LOG.severe("Threw error while decoding audio. Skipping audio chunk.");
+            CCSpeakerCodecs.LOG.severe(e.getMessage());
+        } finally {
+            ci.cancel();
         }
-        ci.cancel();
     }
 }

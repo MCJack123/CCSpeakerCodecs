@@ -20,6 +20,9 @@ public abstract class EncodedAudioMixin {
     @Invoker("charge")
     abstract int ccspeakercodecs$charge();
 
+    @Invoker("strength")
+    abstract int ccspeakercodecs$strength();
+
     @Invoker("audio")
     abstract ByteBuffer ccspeakercodecs$audio();
 
@@ -28,7 +31,7 @@ public abstract class EncodedAudioMixin {
         if (ccspeakercodecs$charge() < 0x8000) return; // do not process valid DFPWM chunks
         // write dummy null chunk for backcompat
         buf.writeVarInt(ccspeakercodecs$charge()); // this won't be used if the length is 0
-        buf.writeVarInt(0);
+        buf.writeVarInt(ccspeakercodecs$strength()); // holds the sample count
         buf.writeBoolean(false);
         buf.writeVarInt(0);
         // write actual block

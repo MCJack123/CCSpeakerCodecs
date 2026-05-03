@@ -74,7 +74,7 @@ public abstract class Codec {
      * @param data The bytes to decode
      * @return The decoded samples
      */
-    public abstract short[] decode(byte[] data);
+    public abstract short[] decode(byte[] data, int numSamples) throws RuntimeException;
 
     /**
      * Returns the ID of the codec.
