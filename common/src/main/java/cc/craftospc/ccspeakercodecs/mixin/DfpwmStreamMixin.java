@@ -28,20 +28,22 @@ public abstract class DfpwmStreamMixin {
         byte id = (byte)(audio.charge() & 0xFF);
         Codec codec = Codec.byID(id);
         if (codec == null) {
-            CCSpeakerCodecs.LOG.warning("Could not find codec for id " + id + ". Skipping audio chunk.");
+            CCSpeakerCodecs.LOG.warn("Could not find codec for id {}. Skipping audio chunk.", id);
             ci.cancel();
             return;
         }
         var input = audio.audio();
         if (!input.hasRemaining()) {
-            CCSpeakerCodecs.LOG.warning("Received empty audio. Skipping audio chunk.");
+            CCSpeakerCodecs.LOG.warn("Received empty audio. Skipping audio chunk.");
             ci.cancel();
             return;
         }
         byte[] bytes = new byte[input.remaining()];
         input.get(bytes);
         try {
+            long start = System.nanoTime();
             short[] samples = codec.decode(bytes, audio.strength());
+            CCSpeakerCodecs.LOG.debug("Decode time: {} us", (System.nanoTime() - start) / 1000L);
             ByteBuffer samples8 = ByteBuffer.allocate(samples.length).order(ByteOrder.nativeOrder());
             for (short sample : samples) samples8.put((byte) ((sample >> 8) ^ 0x80));
             samples8.flip();
@@ -49,8 +51,7 @@ public abstract class DfpwmStreamMixin {
                 ccspeakercodecs$getBuffers().add(samples8);
             }
         } catch (RuntimeException e) {
-            CCSpeakerCodecs.LOG.severe("Threw error while decoding audio. Skipping audio chunk.");
-            CCSpeakerCodecs.LOG.severe(e.getMessage());
+            CCSpeakerCodecs.LOG.error("Threw error while decoding audio. Skipping audio chunk.", e);
         } finally {
             ci.cancel();
         }

@@ -4,11 +4,12 @@
 
 package cc.craftospc.ccspeakercodecs;
 
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class CCSpeakerCodecs {
     public static final String MOD_ID = "ccspeakercodecs";
-    public static final Logger LOG = Logger.getLogger(MOD_ID);
+    public static final Logger LOG = LogManager.getLogger(MOD_ID);
 
     public static void init() {
         // Write common init code here.

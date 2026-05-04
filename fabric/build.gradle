@@ -36,6 +36,9 @@ dependencies {
 
     modCompileOnly("cc.tweaked:cc-tweaked-$minecraft_version-fabric-api:$cct_version")
     modRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-fabric:$cct_version")
+
+    // Source: https://mvnrepository.com/artifact/io.github.jaredmdobson/concentus
+    include("io.github.jaredmdobson:concentus:1.0.2")
 }
 
 processResources {

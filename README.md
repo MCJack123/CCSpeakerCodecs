@@ -19,6 +19,7 @@ Over the network, the audio packets are made backwards compatible with clients a
 | `adpcm3` | 3        | 16000       | ⭐⭐⭐   | ⭐⭐⭐     |
 | `adpcm`  | 4        | 12000       | ⭐⭐⭐   | ⭐⭐      |
 | `adpcm5` | 5        | 9600        | ⭐⭐    | ⭐⭐      |
+| `opus`   | *        | 48000       | ⭐⭐⭐⭐  | ⭐⭐⭐⭐⭐   |
 
 | Codec    | [chipneve.xm](https://modarchive.org/index.php?request=view_by_moduleid&query=36799) (chiptune, no interpolation) | Yahtzee.xm (low sample rate GBA module, linear interpolation)                                 | [Stereo Madness 2](https://www.newgrounds.com/audio/listen/590577) (WAV, 48 kHz 16-bit)   |
 |----------|-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|

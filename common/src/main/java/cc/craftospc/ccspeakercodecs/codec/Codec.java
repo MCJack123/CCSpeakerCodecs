@@ -22,6 +22,10 @@ public abstract class Codec {
     public static final Codec ADPCM_4;
     public static final int ADPCM_5_ID = 5;
     public static final Codec ADPCM_5;
+    public static final int OPUS_ID_FIRST = 6;
+    public static final int OPUS_ID_LAST = 13;
+    private static final Codec[] opus_codecs = new Codec[OPUS_ID_LAST - OPUS_ID_FIRST];
+    private static int next_opus_codec_index = 0;
 
     static {
         DFPWM = CodecHolder.DFPWM;
@@ -48,10 +52,24 @@ public abstract class Codec {
         if (name.equalsIgnoreCase("adpcm3")) return ADPCM_3;
         if (name.equalsIgnoreCase("adpcm4") || name.equalsIgnoreCase("adpcm")) return ADPCM_4;
         if (name.equalsIgnoreCase("adpcm5")) return ADPCM_5;
+        if (name.equalsIgnoreCase("opus")) {
+            Codec codec = new OpusCodec(OPUS_ID_FIRST + next_opus_codec_index);
+            opus_codecs[next_opus_codec_index++] = codec;
+            if (next_opus_codec_index >= opus_codecs.length) next_opus_codec_index = 0;
+            return codec;
+        }
         return null;
     }
 
     public static @Nullable Codec byID(int id) {
+        if (id >= OPUS_ID_FIRST && id <= OPUS_ID_LAST) {
+            Codec c = opus_codecs[id - OPUS_ID_FIRST];
+            if (c == null) {
+                c = new OpusCodec(id);
+                opus_codecs[id - OPUS_ID_FIRST] = c;
+            }
+            return c;
+        }
         return switch (id) {
             case DFPWM_ID -> DFPWM;
             case QOA_ID -> QOA;

@@ -8,6 +8,6 @@ import cc.craftospc.ccspeakercodecs.CCSpeakerCodecs;
 
 public class DfpwmState {
     static {
-        CCSpeakerCodecs.LOG.severe("This should never be loaded! Audio will be broken.");
+        CCSpeakerCodecs.LOG.error("This should never be loaded! Audio will be broken.");
     }
 }

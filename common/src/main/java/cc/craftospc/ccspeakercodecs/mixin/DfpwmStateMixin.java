@@ -4,6 +4,7 @@
 
 package cc.craftospc.ccspeakercodecs.mixin;
 
+import cc.craftospc.ccspeakercodecs.CCSpeakerCodecs;
 import cc.craftospc.ccspeakercodecs.DfpwmStateBridge;
 import cc.craftospc.ccspeakercodecs.codec.Codec;
 import dan200.computercraft.api.lua.LuaException;
@@ -59,7 +60,9 @@ abstract class DfpwmStateMixin implements DfpwmStateBridge {
             }
             samples[i] = (short) (level * 256.0);
         }
+        long start = System.nanoTime();
         byte[] bytes = codec_ccspeakercodecs.encode(samples);
+        CCSpeakerCodecs.LOG.debug("Encode time: {} us", (System.nanoTime() - start) / 1000L);
 
         ccspeakercodecs$set_pendingAudio(new EncodedAudio(0x8000 | codec_ccspeakercodecs.id(), size, false, ByteBuffer.wrap(bytes)));
         ccspeakercodecs$set_pendingVolume((float) SpeakerPeripheralAccessor.callClampVolume(volume.orElse((double) ccspeakercodecs$get_pendingVolume())));
