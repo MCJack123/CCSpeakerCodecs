@@ -5,6 +5,7 @@
 package cc.craftospc.ccspeakercodecs.codec;
 
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMCodec;
+import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMEncoder;
 import cc.craftospc.ccspeakercodecs.codec.qoa.QOACodec;
 import org.jspecify.annotations.Nullable;
 
@@ -34,10 +35,10 @@ public abstract class Codec {
     private static class CodecHolder {
         static final Codec DFPWM = new DFPWMCodec();
         static final Codec QOA = new QOACodec();
-        static final Codec ADPCM_2 = new ADPCMCodec(2, 24000);
-        static final Codec ADPCM_3 = new ADPCMCodec(3, 16000);
-        static final Codec ADPCM_4 = new ADPCMCodec(4, 12000);
-        static final Codec ADPCM_5 = new ADPCMCodec(5, 9600);
+        static final Codec ADPCM_2 = new ADPCMCodec(2, 24000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
+        static final Codec ADPCM_3 = new ADPCMCodec(3, 16000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
+        static final Codec ADPCM_4 = new ADPCMCodec(4, 12000, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
+        static final Codec ADPCM_5 = new ADPCMCodec(5, 9600, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
     }
 
     public static @Nullable Codec byName(String name) {

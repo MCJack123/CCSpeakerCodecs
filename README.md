@@ -14,13 +14,20 @@ Over the network, the audio packets are made backwards compatible with clients a
 | Codec    | b/sample | Sample rate | Speed | Quality |
 |----------|----------|-------------|-------|---------|
 | `dfpwm`  | 1        | 48000       | ⭐⭐⭐⭐⭐ | ⭐       |
-| `adpcm2` | 2        | 24000       | ⭐⭐⭐⭐  | ⭐⭐      |
-| `adpcm3` | 3        | 16000       | ⭐⭐⭐⭐  | ⭐⭐      |
-| `qoa`    | 3.2      | 12000       | ⭐⭐⭐⭐  | ⭐⭐⭐     |
-| `adpcm`  | 4        | 12000       | ⭐⭐⭐   | ⭐⭐⭐     |
-| `adpcm5` | 5        | 9600        | ⭐⭐⭐   | ⭐⭐⭐     |
+| `qoa`    | 3.2      | 12000       | ⭐⭐⭐⭐⭐ | ⭐⭐      |
+| `adpcm2` | 2        | 24000       | ⭐⭐⭐   | ⭐⭐⭐     |
+| `adpcm3` | 3        | 16000       | ⭐⭐⭐   | ⭐⭐⭐     |
+| `adpcm`  | 4        | 12000       | ⭐⭐⭐   | ⭐⭐      |
+| `adpcm5` | 5        | 9600        | ⭐⭐    | ⭐⭐      |
 
-(TODO: Verify complexity ratings & add parameter configuration)
+| Codec    | [chipneve.xm](https://modarchive.org/index.php?request=view_by_moduleid&query=36799) (chiptune, no interpolation) | Yahtzee.xm (low sample rate GBA module, linear interpolation)                                 | [Stereo Madness 2](https://www.newgrounds.com/audio/listen/590577) (WAV, 48 kHz 16-bit)   |
+|----------|-------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `dfpwm`  | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/DFPWM%20chipneve.wav                     | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/DFPWM%20yahtzee.wav  | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/DFPWM%20sm2.wav  |
+| `qoa`    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/QOA%20chipneve.wav                       | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/QOA%20yahtzee.wav    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/QOA%20sm2.wav    |
+| `adpcm2` | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM2%20chipneve.wav                    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM2%20yahtzee.wav | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM2%20sm2.wav |
+| `adpcm3` | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM3%20chipneve.wav                    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM3%20yahtzee.wav | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM3%20sm2.wav |
+| `adpcm`  | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM4%20chipneve.wav                    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM4%20yahtzee.wav | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM4%20sm2.wav |
+| `adpcm5` | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM5%20chipneve.wav                    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM5%20yahtzee.wav | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM5%20sm2.wav |
 
 ## Usage
 Simply call the new `speaker.setAudioCodec(codec)` method to set the codec. Future `playAudio` calls will use this codec automatically, with no format changes necessary.

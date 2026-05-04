@@ -14,3 +14,10 @@ dependencies {
 jar {
     exclude('dan200/**')
 }
+
+task profile(type: JavaExec) {
+    description = 'Run codec benchmarks'
+    classpath = sourceSets.main.output + sourceSets.main.compileClasspath
+    mainClass = 'cc.craftospc.ccspeakercodecs.codec.Benchmark'
+    systemProperty 'ccspeakercodecs.profile', 'true'
+}

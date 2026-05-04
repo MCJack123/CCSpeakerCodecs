@@ -13,14 +13,10 @@ public class ADPCMCodec extends Codec {
     int skipFactor;
     ADPCMEncoder encoder;
 
-    // TODO: calibrate these for optimal performance
-    static final int ADPCM_LOOKAHEAD = 3;
-    static final int ADPCM_NOISE_SHAPING = ADPCMEncoder.NOISE_SHAPING_OFF;
-
-    public ADPCMCodec(int bps, int sampleRate) {
+    public ADPCMCodec(int bps, int sampleRate, int lookahead, int noiseShaping) {
         this.bps = bps;
         this.skipFactor = 48000 / sampleRate;
-        this.encoder = new ADPCMEncoder(1, sampleRate, ADPCM_LOOKAHEAD, ADPCM_NOISE_SHAPING);
+        this.encoder = new ADPCMEncoder(1, sampleRate, lookahead, noiseShaping);
     }
 
     @Override
