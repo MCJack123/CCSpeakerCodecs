@@ -6,6 +6,7 @@ package cc.craftospc.ccspeakercodecs.mixin;
 
 import cc.craftospc.ccspeakercodecs.DfpwmStateBridge;
 import cc.craftospc.ccspeakercodecs.codec.Codec;
+import cc.craftospc.ccspeakercodecs.codec.DFPWMCodec;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -25,7 +26,7 @@ import java.util.Optional;
 @Mixin(dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.class)
 public abstract class SpeakerPeripheralMixin {
     @Unique
-    public Codec codec_ccspeakercodecs = Codec.DFPWM;
+    public Codec codec_ccspeakercodecs = DFPWMCodec.INSTANCE;
 
     @Accessor("dfpwmState")
     abstract DfpwmState ccspeakercodecs$get_dfpwmState();
@@ -45,8 +46,8 @@ public abstract class SpeakerPeripheralMixin {
     }
 
     @LuaFunction
-    public final void setAudioCodec(String name) throws LuaException {
-        Codec codec = Codec.byName(name);
+    public final void setAudioCodec(String name, LuaTable<String, ?> options) throws LuaException {
+        Codec codec = Codec.byName(name, options);
         if (codec == null) throw new LuaException("Unknown codec: " + name);
         codec_ccspeakercodecs = codec;
         DfpwmState state = ccspeakercodecs$get_dfpwmState();

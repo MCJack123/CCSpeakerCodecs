@@ -30,8 +30,25 @@ Over the network, the audio packets are made backwards compatible with clients a
 | `adpcm`  | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM4%20chipneve.wav                    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM4%20yahtzee.wav | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM4%20sm2.wav |
 | `adpcm5` | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM5%20chipneve.wav                    | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM5%20yahtzee.wav | https://raw.githubusercontent.com/MCJack123/CCSpeakerCodecs/master/demos/ADPCM5%20sm2.wav |
 
+### Codec options
+Some codecs accept additional options in a table passed as the second parameter to `setAudioCodec`. These are the following options available:
+
+#### `interpolation: boolean`
+**Available in:** `qoa`, `adpcm2`, `adpcm3`, `adpcm`, `adpcm5`
+
+Sets whether the audio is interpolated (linearly) on the client side. Defaults to true.
+
+Interpolation smoothens out the audio and makes it less crunchy, but the crunch may be desired for some audio, so the option is made available just in case.
+
+#### `bufferSize: number`
+**Available in:** `opus`
+
+Controls the size of the audio buffer/minimum frame size in samples. May be any of 120, 240, 480, 960, or 1920. Defaults to 960.
+
+Lower values will reduce the audio delay from buffering, but can cause clicks due to the smaller buffers having lower quality encoding. Notably, values of 120 and 240 are significantly worse than the higher values.
+
 ## Usage
-Simply call the new `speaker.setAudioCodec(codec)` method to set the codec. Future `playAudio` calls will use this codec automatically, with no format changes necessary.
+Simply call the new `speaker.setAudioCodec(codec: string[, options: table])` method to set the codec. Future `playAudio` calls will use this codec automatically, with no format changes necessary.
 
 ## License
 The core mod is licensed under MPL 2.0, like CC:T. Portions are taken from third-party projects licensed under other terms - see LICENSE.txt for more info.

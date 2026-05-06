@@ -7,78 +7,106 @@ package cc.craftospc.ccspeakercodecs.codec;
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMCodec;
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMEncoder;
 import cc.craftospc.ccspeakercodecs.codec.qoa.QOACodec;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaTable;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Arrays;
+
 public abstract class Codec {
-    public static final int DFPWM_ID = 0;
-    public static final Codec DFPWM;
-    public static final int QOA_ID = 1;
-    public static final Codec QOA;
-    public static final int ADPCM_2_ID = 2;
-    public static final Codec ADPCM_2;
-    public static final int ADPCM_3_ID = 3;
-    public static final Codec ADPCM_3;
-    public static final int ADPCM_4_ID = 4;
-    public static final Codec ADPCM_4;
-    public static final int ADPCM_5_ID = 5;
-    public static final Codec ADPCM_5;
-    public static final int OPUS_ID_FIRST = 6;
-    public static final int OPUS_ID_LAST = 13;
-    private static final Codec[] opus_codecs = new Codec[OPUS_ID_LAST - OPUS_ID_FIRST];
-    private static int next_opus_codec_index = 0;
+    public static abstract class Instances {
+        private final Codec[] codecs = new Codec[MAX_INSTANCES];
+        private int nextIndex = 0;
+        private final String name;
 
-    static {
-        DFPWM = CodecHolder.DFPWM;
-        QOA = CodecHolder.QOA;
-        ADPCM_2 = CodecHolder.ADPCM_2;
-        ADPCM_3 = CodecHolder.ADPCM_3;
-        ADPCM_4 = CodecHolder.ADPCM_4;
-        ADPCM_5 = CodecHolder.ADPCM_5;
-    }
+        protected abstract Codec create(int instance, LuaTable<String, ?> options) throws LuaException;
+        protected abstract Codec create(int id);
 
-    private static class CodecHolder {
-        static final Codec DFPWM = new DFPWMCodec();
-        static final Codec QOA = new QOACodec();
-        static final Codec ADPCM_2 = new ADPCMCodec(2, 24000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
-        static final Codec ADPCM_3 = new ADPCMCodec(3, 16000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
-        static final Codec ADPCM_4 = new ADPCMCodec(4, 12000, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
-        static final Codec ADPCM_5 = new ADPCMCodec(5, 9600, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC);
-    }
-
-    public static @Nullable Codec byName(String name) {
-        if (name.equalsIgnoreCase("dfpwm")) return DFPWM;
-        if (name.equalsIgnoreCase("qoa")) return QOA;
-        if (name.equalsIgnoreCase("adpcm2")) return ADPCM_2;
-        if (name.equalsIgnoreCase("adpcm3")) return ADPCM_3;
-        if (name.equalsIgnoreCase("adpcm4") || name.equalsIgnoreCase("adpcm")) return ADPCM_4;
-        if (name.equalsIgnoreCase("adpcm5")) return ADPCM_5;
-        if (name.equalsIgnoreCase("opus")) {
-            Codec codec = new OpusCodec(OPUS_ID_FIRST + next_opus_codec_index);
-            opus_codecs[next_opus_codec_index++] = codec;
-            if (next_opus_codec_index >= opus_codecs.length) next_opus_codec_index = 0;
-            return codec;
+        protected Instances(String name) {
+            this.name = name;
         }
-        return null;
-    }
 
-    public static @Nullable Codec byID(int id) {
-        if (id >= OPUS_ID_FIRST && id <= OPUS_ID_LAST) {
-            Codec c = opus_codecs[id - OPUS_ID_FIRST];
-            if (c == null) {
-                c = new OpusCodec(id);
-                opus_codecs[id - OPUS_ID_FIRST] = c;
-            }
+        public String getName() {
+            return name;
+        }
+
+        public Codec createInstance(LuaTable<String, ?> options) throws LuaException {
+            Codec c = create(nextIndex, options);
+            codecs[nextIndex] = c;
+            if (++nextIndex >= MAX_INSTANCES) nextIndex = 0;
             return c;
         }
-        return switch (id) {
-            case DFPWM_ID -> DFPWM;
-            case QOA_ID -> QOA;
-            case ADPCM_2_ID -> ADPCM_2;
-            case ADPCM_3_ID -> ADPCM_3;
-            case ADPCM_4_ID -> ADPCM_4;
-            case ADPCM_5_ID -> ADPCM_5;
-            default -> null;
-        };
+
+        public Codec getInstance(int id, boolean forceNew) {
+            int instance = instanceIndex(id);
+            if (forceNew || codecs[instance] == null) codecs[instance] = create(id);
+            return codecs[instance];
+        }
+    }
+
+    public static final int TYPE_DFPWM = 0;
+    public static final int TYPE_QOA = 1;
+    public static final int TYPE_ADPCM_2 = 2;
+    public static final int TYPE_ADPCM_3 = 3;
+    public static final int TYPE_ADPCM_4 = 4;
+    public static final int TYPE_ADPCM_5 = 5;
+    public static final int TYPE_OPUS = 6;
+
+    private static final int MAX_INSTANCES = 16;
+
+    private static final Instances[] codecs = new Instances[] {
+        new DFPWMCodec.Instances(),
+        new QOACodec.Instances(),
+        new ADPCMCodec.Instances(2, 24000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
+        new ADPCMCodec.Instances(3, 16000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
+        new ADPCMCodec.Instances(4, 12000, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
+        new ADPCMCodec.Instances(5, 9600, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
+        new OpusCodec.Instances(),
+    };
+
+    private final boolean interpolate;
+    private boolean targetChanged = true;
+
+    protected Codec(boolean interpolate) {
+        this.interpolate = interpolate;
+    }
+
+    public static @Nullable Codec byName(String name, LuaTable<String, ?> options) throws LuaException {
+        Instances instances = null;
+        if (name.equalsIgnoreCase("adpcm")) instances = codecs[TYPE_ADPCM_4];
+        else for (int i = 0; i < MAX_INSTANCES; i++) {
+            if (Codec.codecs[i].getName().equalsIgnoreCase(name)) {
+                instances = Codec.codecs[i];
+                break;
+            }
+        }
+        if (instances == null) return null;
+        return instances.createInstance(options);
+    }
+
+    public static Codec byID(int id, boolean forceNew) {
+        int type = typeId(id);
+        if (type >= codecs.length) return null;
+        return codecs[type].getInstance(id, forceNew);
+    }
+
+    public static int typeId(int id) {
+        return (id >>> 4) & 0xF;
+    }
+
+    public static int instanceIndex(int id) {
+        return id & 0xF;
+    }
+
+    /**
+     * Checks whether the codec was just created.
+     * This will set the flag to false for the next read.
+     * @return Whether this codec was just created (only returns true once)
+     */
+    public boolean readTargetChanged() {
+        boolean changed = this.targetChanged;
+        this.targetChanged = false;
+        return changed;
     }
 
     /**
@@ -87,6 +115,13 @@ public abstract class Codec {
      * @return The encoded bytes
      */
     public abstract byte[] encode(short[] data);
+
+    /**
+     * Returns the length of the audio that was last encoded. This may be different
+     * from the last input length in the case of a buffered codec.
+     * @return The length of the last encoded audio
+     */
+    public abstract int lastEncodeLength();
 
     /**
      * Decodes codec data to 48 kHz audio.
@@ -100,4 +135,46 @@ public abstract class Codec {
      * @return The ID of the codec
      */
     public abstract int id();
+
+    /**
+     * Returns the sample rate resampling factor (48000 / target rate).
+     * Default is 1 (no resampling).
+     * @return The resample factor for the codec
+     */
+    protected int resampleFactor() {
+        return 1;
+    }
+
+    /**
+     * Resamples input audio down to codec sample rate.
+     * @param input The audio to resample
+     * @return The newly resampled audio
+     */
+    protected short[] resampleDown(short[] input) {
+        int factor = resampleFactor();
+        if (factor == 1) return input;
+
+        short[] output = new short[input.length / factor];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = input[i * factor];
+        }
+        return output;
+    }
+
+    /**
+     * Resamples a downsampled audio chunk back to native.
+     * @param retval The audio to resample, which must have length of at least `totalSamples * resampleFactor()`
+     * @param totalSamples The total number of samples before resampling
+     * @return The newly resampled audio chunk
+     */
+    protected short[] resampleUp(short[] retval, int totalSamples) {
+        int resampleFactor = resampleFactor();
+        for (int i = totalSamples - 1; i >= 0; i--) {
+            for (int j = 0; j < resampleFactor; j++) {
+                if (interpolate) retval[i * resampleFactor + j] = (short) (retval[i] * (resampleFactor - j) / resampleFactor + retval[i + 1] * j / resampleFactor);
+                else retval[i * resampleFactor + j] = retval[i];
+            }
+        }
+        return Arrays.copyOf(retval, totalSamples * resampleFactor);
+    }
 }

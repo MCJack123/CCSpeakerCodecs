@@ -25,8 +25,8 @@ public abstract class DfpwmStreamMixin {
     @Inject(method = "push", at = @At("HEAD"), cancellable = true)
     void push(EncodedAudio audio, CallbackInfo ci) {
         if (audio.charge() < 0x8000) return; // process DFPWM normally
-        byte id = (byte)(audio.charge() & 0xFF);
-        Codec codec = Codec.byID(id);
+        int id = audio.charge() & 0x7FFF;
+        Codec codec = Codec.byID(id, audio.previousBit());
         if (codec == null) {
             CCSpeakerCodecs.LOG.warn("Could not find codec for id {}. Skipping audio chunk.", id);
             ci.cancel();

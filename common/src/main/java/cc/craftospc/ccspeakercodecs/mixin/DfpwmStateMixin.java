@@ -7,6 +7,7 @@ package cc.craftospc.ccspeakercodecs.mixin;
 import cc.craftospc.ccspeakercodecs.CCSpeakerCodecs;
 import cc.craftospc.ccspeakercodecs.DfpwmStateBridge;
 import cc.craftospc.ccspeakercodecs.codec.Codec;
+import cc.craftospc.ccspeakercodecs.codec.DFPWMCodec;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.api.lua.LuaValues;
@@ -24,7 +25,7 @@ import java.util.Optional;
 @Mixin(targets = "dan200.computercraft.shared.peripheral.speaker.DfpwmState")
 abstract class DfpwmStateMixin implements DfpwmStateBridge {
     @Unique
-    Codec codec_ccspeakercodecs = Codec.DFPWM;
+    Codec codec_ccspeakercodecs = DFPWMCodec.INSTANCE;
 
     @Override
     public void setCodec_ccspeakercodecs(Codec codec) {codec_ccspeakercodecs = codec;}
@@ -43,7 +44,7 @@ abstract class DfpwmStateMixin implements DfpwmStateBridge {
 
     @Inject(method = "pushBuffer", at = @At("HEAD"), cancellable = true)
     void pushBuffer(LuaTable<?, ?> table, int size, Optional<Double> volume, CallbackInfoReturnable<Boolean> cir) throws LuaException {
-        if (codec_ccspeakercodecs == Codec.DFPWM) return; // continue with regular execution
+        if (codec_ccspeakercodecs == DFPWMCodec.INSTANCE) return; // continue with regular execution
         if (ccspeakercodecs$get_pendingAudio() != null) {
             cir.setReturnValue(false);
             cir.cancel();
@@ -64,7 +65,7 @@ abstract class DfpwmStateMixin implements DfpwmStateBridge {
         byte[] bytes = codec_ccspeakercodecs.encode(samples);
         CCSpeakerCodecs.LOG.debug("Encode time: {} us", (System.nanoTime() - start) / 1000L);
 
-        ccspeakercodecs$set_pendingAudio(new EncodedAudio(0x8000 | codec_ccspeakercodecs.id(), size, false, ByteBuffer.wrap(bytes)));
+        ccspeakercodecs$set_pendingAudio(new EncodedAudio(0x8000 | codec_ccspeakercodecs.id(), codec_ccspeakercodecs.lastEncodeLength(), codec_ccspeakercodecs.readTargetChanged(), ByteBuffer.wrap(bytes)));
         ccspeakercodecs$set_pendingVolume((float) SpeakerPeripheralAccessor.callClampVolume(volume.orElse((double) ccspeakercodecs$get_pendingVolume())));
         cir.setReturnValue(true);
         cir.cancel();

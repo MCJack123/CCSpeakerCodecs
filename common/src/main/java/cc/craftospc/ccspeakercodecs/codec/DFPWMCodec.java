@@ -4,7 +4,28 @@
 
 package cc.craftospc.ccspeakercodecs.codec;
 
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaTable;
+
 public class DFPWMCodec extends Codec {
+    public static class Instances extends Codec.Instances {
+        public Instances() {super("dfpwm");}
+
+        @Override
+        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
+            return INSTANCE;
+        }
+
+        @Override
+        protected Codec create(int id) {
+            return INSTANCE;
+        }
+    }
+
+    public static final Codec INSTANCE = new DFPWMCodec();
+
+    DFPWMCodec() {super(false);}
+
     @Override
     public byte[] encode(short[] data) {
         throw new UnsupportedOperationException("Attempted to encode with dummy DFPWM codec. This is a bug, and may be due to a codec with the wrong ID.");
@@ -17,6 +38,10 @@ public class DFPWMCodec extends Codec {
 
     @Override
     public int id() {
+        return 0;
+    }
+
+    public int lastEncodeLength() {
         return 0;
     }
 }

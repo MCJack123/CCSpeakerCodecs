@@ -4,15 +4,35 @@
 
 package cc.craftospc.ccspeakercodecs.codec.qoa;
 
+import cc.craftospc.ccspeakercodecs.codec.BufferedCodec;
 import cc.craftospc.ccspeakercodecs.codec.Codec;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaTable;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public class QOACodec extends Codec {
+public class QOACodec extends BufferedCodec {
     static final int SAMPLE_RATE = 12000;
     static final int SKIP_FACTOR = 48000 / SAMPLE_RATE;
+
+    private final int id;
+    private final Encoder encoder;
+
+    public static class Instances extends Codec.Instances {
+        public Instances() {super("qoa");}
+
+        @Override
+        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
+            return new QOACodec(instance | (Codec.TYPE_QOA << 4) | (options.optBoolean("interpolate").orElse(true) ? 0x100 : 0));
+        }
+
+        @Override
+        protected Codec create(int id) {
+            return new QOACodec(id);
+        }
+    }
 
     private static class Encoder extends QOAEncoder {
         ByteBuffer output = ByteBuffer.allocate(1024).order(ByteOrder.BIG_ENDIAN);
@@ -35,6 +55,7 @@ public class QOACodec extends Codec {
             byte[] retval = new byte[output.position()+1];
             output.flip();
             output.get(retval, 0, retval.length - 1);
+            output.flip();
             retval[retval.length-1] = (byte) (lastSample >> 8);
             return retval;
         }
@@ -61,37 +82,50 @@ public class QOACodec extends Codec {
         }
     }
 
+    public QOACodec(int id) {
+        super((id & 0x100) != 0);
+        this.id = id;
+        this.encoder = new Encoder();
+    }
+
     @Override
-    public byte[] encode(short[] data) {
-        short[] resampled = new short[data.length / SKIP_FACTOR];
-        for (int i = 0; i < resampled.length; i++) resampled[i] = data[i * SKIP_FACTOR];
-        Encoder encoder = new Encoder();
-        encoder.writeHeader(resampled.length, 1, SAMPLE_RATE);
-        for (int i = 0; i < resampled.length; i += 5120) encoder.writeFrame(Arrays.copyOfRange(resampled, i, Math.min(i + 5120, resampled.length)), Math.min(resampled.length - i, 5120));
-        return encoder.finish(data[data.length - 1]);
+    protected int minBufferedSize() {
+        return 20;
+    }
+
+    @Override
+    public int resampleFactor() {
+        return SKIP_FACTOR;
+    }
+
+    @Override
+    protected byte[] encodeBuffered(short[] data, int count, short lastSample) {
+        encoder.writeHeader(count, 1, SAMPLE_RATE);
+        for (int i = 0; i < count; i += 5120) {
+            int chunkSize = Math.min(5120, count - i);
+            encoder.writeFrame(Arrays.copyOfRange(data, i, i + chunkSize), chunkSize);
+        }
+        return encoder.finish(lastSample);
     }
 
     @Override
     public short[] decode(byte[] data, int numSamples) throws RuntimeException {
         Decoder decoder = new Decoder(data);
         if (!decoder.readHeader()) throw new IllegalStateException("Invalid header data");
-        int sz = decoder.getTotalSamples();
-        short[] retval = new short[sz * SKIP_FACTOR];
+        int totalSamples = decoder.getTotalSamples();
+        short[] retval = new short[totalSamples * SKIP_FACTOR];
         short[] tmp = new short[5120];
-        for (int i = 0; i < sz; i += 5120) {
+        for (int i = 0; i < totalSamples; i += 5120) {
             int framesz = decoder.readFrame(tmp);
             if (framesz < 0) break;
             System.arraycopy(tmp, 0, retval, i, framesz);
         }
-        retval[sz] = (short) (data[data.length - 1] << 8);
-        for (int i = sz - 1; i >= 0; i--) {
-            for (int j = 0; j < SKIP_FACTOR; j++) retval[i*SKIP_FACTOR+j] = (short) (retval[i] * (SKIP_FACTOR - j) / SKIP_FACTOR + retval[i+1] * j / SKIP_FACTOR);
-        }
-        return Arrays.copyOf(retval, sz * SKIP_FACTOR);
+        retval[totalSamples] = (short) (data[data.length - 1] << 8);
+        return resampleUp(retval, totalSamples);
     }
 
     @Override
     public int id() {
-        return Codec.QOA_ID;
+        return id;
     }
 }

@@ -5,44 +5,78 @@
 package cc.craftospc.ccspeakercodecs.codec.adpcm;
 
 import cc.craftospc.ccspeakercodecs.codec.Codec;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaTable;
 
 import java.util.Arrays;
 
 public class ADPCMCodec extends Codec {
-    int bps;
-    int skipFactor;
-    ADPCMEncoder encoder;
+    private final int id;
+    private final int bps;
+    private final int skipFactor;
+    private final ADPCMEncoder encoder;
+    private int _lastEncodeLength = 0;
 
-    public ADPCMCodec(int bps, int sampleRate, int lookahead, int noiseShaping) {
+    public static class Instances extends Codec.Instances {
+        private final int bps, sampleRate, lookahead, noiseShaping;
+
+        public Instances(int bps, int sampleRate, int lookahead, int noiseShaping) {
+            super("adpcm" + bps);
+            this.bps = bps;
+            this.sampleRate = sampleRate;
+            this.lookahead = lookahead;
+            this.noiseShaping = noiseShaping;
+        }
+
+        @Override
+        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
+            return new ADPCMCodec(instance | bps << 4 | (options.optBoolean("interpolate").orElse(true) ? 0x100 : 0), bps, sampleRate, lookahead, noiseShaping);
+        }
+
+        @Override
+        protected Codec create(int id) {
+            return new ADPCMCodec(id, bps, sampleRate, lookahead, noiseShaping);
+        }
+    }
+
+    public ADPCMCodec(int id, int bps, int sampleRate, int lookahead, int noiseShaping) {
+        super((id & 0x100) != 0);
+        this.id = id;
         this.bps = bps;
         this.skipFactor = 48000 / sampleRate;
         this.encoder = new ADPCMEncoder(1, sampleRate, lookahead, noiseShaping);
     }
 
     @Override
+    public int resampleFactor() {
+        return skipFactor;
+    }
+
+    public int lastEncodeLength() {
+        return _lastEncodeLength;
+    }
+
+    @Override
     public byte[] encode(short[] data) {
-        short[] resampled = new short[data.length / this.skipFactor];
-        for (int i = 0; i < resampled.length; i++) resampled[i] = data[i * this.skipFactor];
-        byte[] retval = new byte[resampled.length * this.bps / 8 + 9];
-        int sz = encoder.encode_block_ex(retval, resampled, this.bps);
+        short[] resampled = resampleDown(data);
+        byte[] retval = new byte[resampled.length * bps / 8 + 9];
+        int sz = encoder.encode_block_ex(retval, resampled, bps);
         retval[sz] = (byte) (data[data.length - 1] >> 8);
+        _lastEncodeLength = data.length;
         return Arrays.copyOf(retval, sz + 1);
     }
 
     @Override
     public short[] decode(byte[] data, int numSamples) {
         short[] retval = new short[numSamples];
-        int sz = ADPCMDecoder.decode_block_ex(retval, data, 1, this.bps);
-        sz = Math.min(sz, numSamples / this.skipFactor);
+        int sz = ADPCMDecoder.decode_block_ex(retval, data, 1, bps);
+        sz = Math.min(sz, numSamples / skipFactor);
         retval[sz] = (short) (data[data.length - 1] << 8);
-        for (int i = sz - 1; i >= 0; i--) {
-            for (int j = 0; j < this.skipFactor; j++) retval[i*this.skipFactor+j] = (short) (retval[i] * (this.skipFactor - j) / this.skipFactor + retval[i+1] * j / this.skipFactor);
-        }
-        return Arrays.copyOf(retval, sz * this.skipFactor);
+        return resampleUp(retval, sz);
     }
 
     @Override
     public int id() {
-        return this.bps;
+        return id;
     }
 }

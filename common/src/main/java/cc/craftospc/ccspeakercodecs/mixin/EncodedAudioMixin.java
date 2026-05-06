@@ -23,6 +23,9 @@ public abstract class EncodedAudioMixin {
     @Invoker("strength")
     abstract int ccspeakercodecs$strength();
 
+    @Invoker("previousBit")
+    abstract boolean ccspeakercodecs$previousBit();
+
     @Invoker("audio")
     abstract ByteBuffer ccspeakercodecs$audio();
 
@@ -32,7 +35,7 @@ public abstract class EncodedAudioMixin {
         // write dummy null chunk for backcompat
         buf.writeVarInt(ccspeakercodecs$charge()); // this won't be used if the length is 0
         buf.writeVarInt(ccspeakercodecs$strength()); // holds the sample count
-        buf.writeBoolean(false);
+        buf.writeBoolean(ccspeakercodecs$previousBit());
         buf.writeVarInt(0);
         // write actual block
         buf.writeVarInt(ccspeakercodecs$audio().remaining());

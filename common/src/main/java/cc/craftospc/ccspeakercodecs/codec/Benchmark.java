@@ -6,6 +6,7 @@ package cc.craftospc.ccspeakercodecs.codec;
 
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMDecoder;
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMEncoder;
+import cc.craftospc.ccspeakercodecs.codec.qoa.QOACodec;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -21,7 +22,7 @@ public final class Benchmark {
     public static void main(String[] args) {
         if (!"true".equals(System.getProperty("ccspeakercodecs.profile"))) return;
 
-        runBenchmark(Codec.QOA, "QOA");
+        runBenchmark(new QOACodec(0), "QOA");
         runBenchmark(new OpusCodec(0), "Opus");
         System.out.println();
         runADPCMBenchmarks();
