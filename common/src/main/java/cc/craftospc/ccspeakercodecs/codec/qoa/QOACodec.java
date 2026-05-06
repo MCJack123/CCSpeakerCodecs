@@ -14,23 +14,27 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class QOACodec extends BufferedCodec {
-    static final int SAMPLE_RATE = 12000;
-    static final int SKIP_FACTOR = 48000 / SAMPLE_RATE;
+    private final int sampleRate;
+    private final int skipFactor;
 
     private final int id;
     private final Encoder encoder;
 
     public static class Instances extends Codec.Instances {
-        public Instances() {super("qoa");}
+        private final boolean enhancedRate;
+        public Instances(boolean enhancedRate) {
+            super(enhancedRate ? "qoa+" : "qoa");
+            this.enhancedRate = enhancedRate;
+        }
 
         @Override
         protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
-            return new QOACodec(instance | (Codec.TYPE_QOA << 4) | (options.optBoolean("interpolate").orElse(true) ? 0x100 : 0));
+            return new QOACodec(instance | ((enhancedRate ? Codec.TYPE_QOA_PLUS : Codec.TYPE_QOA) << 4) | (options.optBoolean("interpolate").orElse(true) ? 0x100 : 0), enhancedRate);
         }
 
         @Override
         protected Codec create(int id) {
-            return new QOACodec(id);
+            return new QOACodec(id, enhancedRate);
         }
     }
 
@@ -82,10 +86,12 @@ public class QOACodec extends BufferedCodec {
         }
     }
 
-    public QOACodec(int id) {
+    public QOACodec(int id, boolean enhancedRate) {
         super((id & 0x100) != 0);
         this.id = id;
         this.encoder = new Encoder();
+        this.sampleRate = enhancedRate ? 16000 : 12000;
+        this.skipFactor = 48000 / sampleRate;
     }
 
     @Override
@@ -95,12 +101,12 @@ public class QOACodec extends BufferedCodec {
 
     @Override
     public int resampleFactor() {
-        return SKIP_FACTOR;
+        return skipFactor;
     }
 
     @Override
     protected byte[] encodeBuffered(short[] data, int count, short lastSample) {
-        encoder.writeHeader(count, 1, SAMPLE_RATE);
+        encoder.writeHeader(count, 1, sampleRate);
         for (int i = 0; i < count; i += 5120) {
             int chunkSize = Math.min(5120, count - i);
             encoder.writeFrame(Arrays.copyOfRange(data, i, i + chunkSize), chunkSize);
@@ -113,7 +119,7 @@ public class QOACodec extends BufferedCodec {
         Decoder decoder = new Decoder(data);
         if (!decoder.readHeader()) throw new IllegalStateException("Invalid header data");
         int totalSamples = decoder.getTotalSamples();
-        short[] retval = new short[totalSamples * SKIP_FACTOR];
+        short[] retval = new short[totalSamples * sampleRate];
         short[] tmp = new short[5120];
         for (int i = 0; i < totalSamples; i += 5120) {
             int framesz = decoder.readFrame(tmp);

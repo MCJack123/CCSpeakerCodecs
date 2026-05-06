@@ -4,6 +4,7 @@
 
 package cc.craftospc.ccspeakercodecs.codec;
 
+import cc.craftospc.ccspeakercodecs.CCSpeakerCodecs;
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMCodec;
 import cc.craftospc.ccspeakercodecs.codec.adpcm.ADPCMEncoder;
 import cc.craftospc.ccspeakercodecs.codec.qoa.QOACodec;
@@ -51,17 +52,19 @@ public abstract class Codec {
     public static final int TYPE_ADPCM_4 = 4;
     public static final int TYPE_ADPCM_5 = 5;
     public static final int TYPE_OPUS = 6;
+    public static final int TYPE_QOA_PLUS = 7;
 
     private static final int MAX_INSTANCES = 16;
 
     private static final Instances[] codecs = new Instances[] {
         new DFPWMCodec.Instances(),
-        new QOACodec.Instances(),
+        new QOACodec.Instances(false),
         new ADPCMCodec.Instances(2, 24000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
         new ADPCMCodec.Instances(3, 16000, 5, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
         new ADPCMCodec.Instances(4, 12000, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
         new ADPCMCodec.Instances(5, 9600, 4, ADPCMEncoder.NOISE_SHAPING_DYNAMIC),
         new OpusCodec.Instances(),
+        new QOACodec.Instances(true),
     };
 
     private final boolean interpolate;
@@ -72,9 +75,10 @@ public abstract class Codec {
     }
 
     public static @Nullable Codec byName(String name, LuaTable<String, ?> options) throws LuaException {
+        if (name.equalsIgnoreCase("adpcm")) name = "adpcm4";
+        if (!CCSpeakerCodecs.CONFIG.allowedCodecs.contains(name.toLowerCase())) return null;
         Instances instances = null;
-        if (name.equalsIgnoreCase("adpcm")) instances = codecs[TYPE_ADPCM_4];
-        else for (int i = 0; i < MAX_INSTANCES; i++) {
+        for (int i = 0; i < MAX_INSTANCES; i++) {
             if (Codec.codecs[i].getName().equalsIgnoreCase(name)) {
                 instances = Codec.codecs[i];
                 break;

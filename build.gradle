@@ -44,6 +44,8 @@ subprojects {
         modImplementation "cc.tweaked:cc-tweaked-$minecraft_version-common:$cct_version"
         // Source: https://mvnrepository.com/artifact/io.github.jaredmdobson/concentus
         implementation("io.github.jaredmdobson:concentus:1.0.2")
+        implementation("com.electronwill.night-config:core:3.8.4")
+        implementation("com.electronwill.night-config:toml:3.8.4")
     }
 
     java {

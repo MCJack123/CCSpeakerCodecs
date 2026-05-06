@@ -22,7 +22,7 @@ public final class Benchmark {
     public static void main(String[] args) {
         if (!"true".equals(System.getProperty("ccspeakercodecs.profile"))) return;
 
-        runBenchmark(new QOACodec(0), "QOA");
+        runBenchmark(new QOACodec(0, false), "QOA");
         runBenchmark(new OpusCodec(0), "Opus");
         System.out.println();
         runADPCMBenchmarks();
