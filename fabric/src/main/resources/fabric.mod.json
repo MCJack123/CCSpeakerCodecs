@@ -3,12 +3,12 @@
   "id": "ccspeakercodecs",
   "version": "${version}",
   "name": "CCSpeakerCodecs",
-  "description": "",
+  "description": "Adds a collection of alternate transit codecs for CC: Tweaked speakers to improve audio quality.",
   "authors": [
-    ""
+    "JackMacWindows"
   ],
   "contact": {
-    "homepage": ""
+    "homepage": "https://github.com/MCJack123/CCSpeakerCodecs"
   },
   "license": "MPL-2.0",
   "icon": "assets/ccspeakercodecs/icon.png",
@@ -25,13 +25,10 @@
     "ccspeakercodecs.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.19.2",
-    "minecraft": "~1.20.1",
+    "fabricloader": ">=0.17.0",
+    "minecraft": "1.20.1",
     "java": ">=17",
-    "architectury": ">=9.2.14",
-    "fabric-api": "*"
-  },
-  "suggests": {
-    "another-mod": "*"
+    "fabric-api": "*",
+    "computercraft": ">=1.110.0"
   }
 }

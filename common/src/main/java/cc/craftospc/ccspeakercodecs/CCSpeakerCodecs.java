@@ -4,9 +4,7 @@
 
 package cc.craftospc.ccspeakercodecs;
 
-import cc.craftospc.ccspeakercodecs.codec.Codec;
 import com.electronwill.nightconfig.core.file.FileConfig;
-import com.electronwill.nightconfig.toml.TomlFormat;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.apache.logging.log4j.LogManager;
@@ -35,15 +33,15 @@ public final class CCSpeakerCodecs {
                 try (FileConfig config = FileConfig.of(file)) {
                     config.load();
 
-                    Optional<String[]> _allowedCodecs = config.getOptional("allowedCodecs");
-                    String[] allowedCodecs = _allowedCodecs.orElse(new String[] {"dfpwm", "qoa", "adpcm2", "adpcm3", "adpcm4", "adpcm5"});
-                    for (int i = 0; i < allowedCodecs.length; i++) {
-                        if ("adpcm".equalsIgnoreCase(allowedCodecs[i])) allowedCodecs[i] = "adpcm4";
-                        allowedCodecs[i] = allowedCodecs[i].toLowerCase();
+                    Optional<ArrayList<String>> _allowedCodecs = config.getOptional("allowedCodecs");
+                    ArrayList<String> allowedCodecs = _allowedCodecs.orElse(new ArrayList<>(Arrays.asList("dfpwm", "qoa", "adpcm2", "adpcm3", "adpcm4", "adpcm5")));
+                    for (int i = 0; i < allowedCodecs.size(); i++) {
+                        if ("adpcm".equalsIgnoreCase(allowedCodecs.get(i))) allowedCodecs.set(i, "adpcm4");
+                        allowedCodecs.set(i, allowedCodecs.get(i).toLowerCase());
                     }
                     this.allowedCodecs.clear();
                     this.allowedCodecs.add("dfpwm"); // dfpwm is always allowed
-                    this.allowedCodecs.addAll(Arrays.asList(allowedCodecs));
+                    this.allowedCodecs.addAll(allowedCodecs);
                 }
             }
         }

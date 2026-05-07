@@ -7,9 +7,9 @@ license = "Mozilla Public License 2.0"
 modId = "ccspeakercodecs"
 version = "${version}"
 displayName = "CCSpeakerCodecs"
-authors = ""
+authors = "JackMacWindows"
 description = '''
-
+Adds a collection of alternate transit codecs for CC: Tweaked speakers to improve audio quality.
 '''
 #logoFile = ""
 
@@ -23,13 +23,13 @@ side = "BOTH"
 [[dependencies.ccspeakercodecs]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,)"
+versionRange = "[1.20.1,1.20.2)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ccspeakercodecs]]
-modId = "architectury"
+modId = "computercraft"
 mandatory = true
-versionRange = "[9.2.14,)"
+versionRange = "[1.110.0,)"
 ordering = "AFTER"
 side = "BOTH"
