@@ -6,9 +6,10 @@ package cc.craftospc.ccspeakercodecs.codec.adpcm;
 
 import cc.craftospc.ccspeakercodecs.codec.Codec;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaTable;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
 public class ADPCMCodec extends Codec {
     private final int id;
@@ -29,8 +30,8 @@ public class ADPCMCodec extends Codec {
         }
 
         @Override
-        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
-            return new ADPCMCodec(instance | bps << 4 | (options.optBoolean("interpolate").orElse(true) ? 0x100 : 0), bps, sampleRate, lookahead, noiseShaping);
+        protected Codec create(int instance, Optional<Map<?, ?>> options) throws LuaException {
+            return new ADPCMCodec(instance | bps << 4 | (getBoolean(options, "interpolate", true) ? 0x100 : 0), bps, sampleRate, lookahead, noiseShaping);
         }
 
         @Override

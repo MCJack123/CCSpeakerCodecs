@@ -5,13 +5,14 @@
 package cc.craftospc.ccspeakercodecs.codec;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaTable;
 import io.github.jaredmdobson.concentus.OpusApplication;
 import io.github.jaredmdobson.concentus.OpusDecoder;
 import io.github.jaredmdobson.concentus.OpusEncoder;
 import io.github.jaredmdobson.concentus.OpusException;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Optional;
 
 public class OpusCodec extends BufferedCodec {
     private final int _id;
@@ -23,8 +24,8 @@ public class OpusCodec extends BufferedCodec {
         public Instances() {super("opus");}
 
         @Override
-        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
-            int bufferSize = options.optInt("bufferSize").orElse(960);
+        protected Codec create(int instance, Optional<Map<?, ?>> options) throws LuaException {
+            int bufferSize = getNumber(options, "bufferSize", 960);
             if (bufferSize >= 1920) bufferSize = 0x400;
             else if (bufferSize >= 960) bufferSize = 0x300;
             else if (bufferSize >= 480) bufferSize = 0x200;

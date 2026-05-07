@@ -7,10 +7,7 @@ package cc.craftospc.ccspeakercodecs.mixin;
 import cc.craftospc.ccspeakercodecs.DfpwmStateBridge;
 import cc.craftospc.ccspeakercodecs.codec.Codec;
 import cc.craftospc.ccspeakercodecs.codec.DFPWMCodec;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.LuaTable;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.peripheral.speaker.DfpwmState;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Mixin(dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.class)
@@ -46,9 +44,9 @@ public abstract class SpeakerPeripheralMixin {
     }
 
     @LuaFunction
-    public final void setAudioCodec(String name, LuaTable<String, ?> options) throws LuaException {
-        Codec codec = Codec.byName(name, options);
-        if (codec == null) throw new LuaException("Unknown codec: " + name);
+    public final void setAudioCodec(IArguments args) throws LuaException {
+        Codec codec = Codec.byName(args.getString(0), args.optTable(1));
+        if (codec == null) throw new LuaException("Unknown codec: " + args.getString(1));
         codec_ccspeakercodecs = codec;
         DfpwmState state = ccspeakercodecs$get_dfpwmState();
         if (state != null) ((DfpwmStateBridge)state).setCodec_ccspeakercodecs(codec);

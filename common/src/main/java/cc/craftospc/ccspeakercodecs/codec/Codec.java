@@ -13,6 +13,8 @@ import dan200.computercraft.api.lua.LuaTable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
 public abstract class Codec {
     public static abstract class Instances {
@@ -20,8 +22,27 @@ public abstract class Codec {
         private int nextIndex = 0;
         private final String name;
 
-        protected abstract Codec create(int instance, LuaTable<String, ?> options) throws LuaException;
+        protected abstract Codec create(int instance, Optional<Map<?, ?>> options) throws LuaException;
         protected abstract Codec create(int id);
+
+        protected static int getNumber(Optional<Map<?, ?>> options, String key, int defaultValue) {
+            if (options.isEmpty()) return defaultValue;
+            Map<?, ?> map = options.get();
+            if (!map.containsKey(key)) return defaultValue;
+            Object value = map.get(key);
+            if (value instanceof Integer) return (int) (Integer) value;
+            if (value instanceof Double) return (int) (double) (Double) value;
+            return defaultValue;
+        }
+
+        protected static boolean getBoolean(Optional<Map<?, ?>> options, String key, boolean defaultValue) {
+            if (options.isEmpty()) return defaultValue;
+            Map<?, ?> map = options.get();
+            if (!map.containsKey(key)) return defaultValue;
+            Object value = map.get(key);
+            if (value instanceof Boolean) return (boolean) (Boolean) value;
+            return defaultValue;
+        }
 
         protected Instances(String name) {
             this.name = name;
@@ -31,7 +52,7 @@ public abstract class Codec {
             return name;
         }
 
-        public Codec createInstance(LuaTable<String, ?> options) throws LuaException {
+        public Codec createInstance(Optional<Map<?, ?>> options) throws LuaException {
             Codec c = create(nextIndex, options);
             codecs[nextIndex] = c;
             if (++nextIndex >= MAX_INSTANCES) nextIndex = 0;
@@ -74,7 +95,7 @@ public abstract class Codec {
         this.interpolate = interpolate;
     }
 
-    public static @Nullable Codec byName(String name, LuaTable<String, ?> options) throws LuaException {
+    public static @Nullable Codec byName(String name, Optional<Map<?, ?>> options) throws LuaException {
         if (name.equalsIgnoreCase("adpcm")) name = "adpcm4";
         if (!CCSpeakerCodecs.CONFIG.allowedCodecs.contains(name.toLowerCase())) return null;
         Instances instances = null;

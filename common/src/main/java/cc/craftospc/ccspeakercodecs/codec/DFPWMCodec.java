@@ -5,14 +5,16 @@
 package cc.craftospc.ccspeakercodecs.codec;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaTable;
+
+import java.util.Map;
+import java.util.Optional;
 
 public class DFPWMCodec extends Codec {
     public static class Instances extends Codec.Instances {
         public Instances() {super("dfpwm");}
 
         @Override
-        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
+        protected Codec create(int instance, Optional<Map<?, ?>> options) throws LuaException {
             return INSTANCE;
         }
 

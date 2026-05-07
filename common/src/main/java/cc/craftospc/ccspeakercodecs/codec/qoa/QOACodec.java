@@ -7,11 +7,12 @@ package cc.craftospc.ccspeakercodecs.codec.qoa;
 import cc.craftospc.ccspeakercodecs.codec.BufferedCodec;
 import cc.craftospc.ccspeakercodecs.codec.Codec;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaTable;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
 public class QOACodec extends BufferedCodec {
     private final int sampleRate;
@@ -28,8 +29,8 @@ public class QOACodec extends BufferedCodec {
         }
 
         @Override
-        protected Codec create(int instance, LuaTable<String, ?> options) throws LuaException {
-            return new QOACodec(instance | ((enhancedRate ? Codec.TYPE_QOA_PLUS : Codec.TYPE_QOA) << 4) | (options.optBoolean("interpolate").orElse(true) ? 0x100 : 0), enhancedRate);
+        protected Codec create(int instance, Optional<Map<?, ?>> options) throws LuaException {
+            return new QOACodec(instance | ((enhancedRate ? Codec.TYPE_QOA_PLUS : Codec.TYPE_QOA) << 4) | (getBoolean(options, "interpolate", true) ? 0x100 : 0), enhancedRate);
         }
 
         @Override
