@@ -29,9 +29,6 @@ public abstract class SpeakerPeripheralMixin {
     @Accessor("dfpwmState")
     abstract DfpwmState ccspeakercodecs$get_dfpwmState();
 
-    @Invoker("clampVolume")
-    public static double ccspeakercodecs$clampVolume(double volume) {throw new AssertionError();}
-
     @Inject(method = "playAudio", at = @At(
         value = "FIELD",
         target = "Ldan200/computercraft/shared/peripheral/speaker/SpeakerPeripheral;dfpwmState:Ldan200/computercraft/shared/peripheral/speaker/DfpwmState;",
@@ -46,7 +43,7 @@ public abstract class SpeakerPeripheralMixin {
     @LuaFunction
     public final void setAudioCodec(IArguments args) throws LuaException {
         Codec codec = Codec.byName(args.getString(0), args.optTable(1));
-        if (codec == null) throw new LuaException("Unknown codec: " + args.getString(1));
+        if (codec == null) throw new LuaException("Unknown codec: " + args.getString(0));
         codec_ccspeakercodecs = codec;
         DfpwmState state = ccspeakercodecs$get_dfpwmState();
         if (state != null) ((DfpwmStateBridge)state).setCodec_ccspeakercodecs(codec);

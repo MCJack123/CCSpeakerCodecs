@@ -50,7 +50,7 @@ public abstract class EncodedAudioMixin {
         var previousBit = buf.readBoolean();
 
         if (charge >= 0x8000) buf.readVarInt(); // ignore length for extended chunk
-        var length = buf.readVarInt();
+        var length = Math.min(buf.readVarInt(), 2097152); // limit length to avoid memory overflow
         var bytes = new byte[length];
         buf.readBytes(bytes);
 
