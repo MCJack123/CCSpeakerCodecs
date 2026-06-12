@@ -5,18 +5,19 @@
 package cc.craftospc.ccspeakercodecs.forge;
 
 import cc.craftospc.ccspeakercodecs.CCSpeakerCodecs;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 @Mod(CCSpeakerCodecs.MOD_ID)
 public final class CCSpeakerCodecsForge {
-    public CCSpeakerCodecsForge(FMLJavaModLoadingContext context) {
+    public CCSpeakerCodecsForge(IEventBus context) {
         // Run our common setup.
         CCSpeakerCodecs.init();
-        context.getModEventBus().addListener(this::onServerStarting);
+        NeoForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
+loaderVersion = "[1,)"
 #issueTrackerURL = ""
 license = "Mozilla Public License 2.0"
 
@@ -13,17 +13,20 @@ Adds a collection of alternate transit codecs for CC: Tweaked speakers to improv
 '''
 #logoFile = ""
 
+[[mixins]]
+config = "ccspeakercodecs.mixins.json"
+
 [[dependencies.ccspeakercodecs]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
-versionRange = "[47,)"
+versionRange = "[21.1,21.2)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ccspeakercodecs]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,1.20.2)"
+versionRange = "[1.21.1,1.21.2)"
 ordering = "NONE"
 side = "BOTH"
 
