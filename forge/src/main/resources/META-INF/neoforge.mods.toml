@@ -19,20 +19,20 @@ config = "ccspeakercodecs.mixins.json"
 [[dependencies.ccspeakercodecs]]
 modId = "neoforge"
 mandatory = true
-versionRange = "[21.1,21.2)"
+versionRange = "[26.1.2,26.2)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ccspeakercodecs]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.21.1,1.21.2)"
+versionRange = "[26.1.2,26.2)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.ccspeakercodecs]]
 modId = "computercraft"
 mandatory = true
-versionRange = "[1.110.0,)"
+versionRange = "[1.118.0,)"
 ordering = "AFTER"
 side = "BOTH"

@@ -1,7 +1,7 @@
 import net.fabricmc.loom.task.RunGameTask
 
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 architectury {
@@ -25,12 +25,12 @@ configurations {
 dependencies {
     neoForge "net.neoforged:neoforge:$rootProject.forge_version"
 
-    common(project(path: ':common', configuration: 'namedElements')) { transitive false }
+    common(project(path: ':common')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 
     compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-core-api:$cct_version")
-    modCompileOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge-api:$cct_version")
-    modRuntimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$cct_version")
+    compileOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge-api:$cct_version")
+    runtimeOnly("cc.tweaked:cc-tweaked-$minecraft_version-forge:$cct_version")
 
     include("io.github.jaredmdobson:concentus:1.0.2")
     // nightconfig is included in Forge
@@ -54,11 +54,16 @@ processResources {
     }
 }
 
-shadowJar {
-    configurations = [project.configurations.shadowBundle]
-    archiveClassifier = 'dev-shadow'
+jar {
+    archiveClassifier = "raw"
 }
 
-remapJar {
-    input.set shadowJar.archiveFile
+shadowJar {
+    dependsOn(jar)
+    dependsOn(":common:jar")
+    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
+    from(zipTree(jar.archiveFile), zipTree(tasks.findByPath(":common:jar").archiveFile))     // Unpack jar output (preserves Loom modifications)
+
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = null
 }
